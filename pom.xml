@@ -15,7 +15,7 @@
 	</parent>
 	<groupId>com.escredit.base</groupId>
 	<artifactId>escredit-base</artifactId>
-	<version>1.3-SNAPSHOT</version>
+	<version>1.3</version>
 	<packaging>pom</packaging>
 
 	<properties>
@@ -47,7 +47,7 @@
 		<connection>scm:git:http://wh.git.ccxcredit.com/es-credit/escredit-base.git</connection>
 		<developerConnection>scm:git:http://wh.git.ccxcredit.com/es-credit/escredit-base.git</developerConnection>
 		<url>http://wh.git.ccxcredit.com/es-credit/escredit-base/tree/master</url>
-	  <tag>HEAD</tag>
+	  <tag>escredit-base-1.3</tag>
   </scm>
 
 	<distributionManagement>
