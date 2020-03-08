@@ -4,7 +4,7 @@
     <parent>
         <artifactId>escredit-base</artifactId>
         <groupId>com.escredit.base</groupId>
-        <version>1.1</version>
+        <version>1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>escredit-base-mq</artifactId>
@@ -27,8 +27,4 @@
             </plugin>
         </plugins>
     </build>
-
-  <scm>
-    <tag>escredit-base-mq-1.1</tag>
-  </scm>
 </project>
