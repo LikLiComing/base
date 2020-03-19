@@ -10,6 +10,8 @@ public interface ServiceInterface {
 
     <T> DTO update(T t);
 
+    <T> DTO updatePartial(T t);
+
     DTO deleteOne(long id);
 
     DTO deleteMultiple(long[] ids);
