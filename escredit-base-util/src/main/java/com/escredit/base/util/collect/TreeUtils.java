@@ -2,6 +2,7 @@ package com.escredit.base.util.collect;
 
 import com.alibaba.fastjson.JSONArray;
 import com.escredit.base.util.reflect.ReflectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import java.io.Serializable;
@@ -14,13 +15,12 @@ import java.util.List;
  */
 public class TreeUtils {
 
-    private static Tree menu_tree = new Tree();
-
-    public static String generateJSONTree(Collection sourceList, String fieldName4Text, List checkedId){
+    public static String generateJSONTree(Collection sourceList, String fieldName4Text,String fieldName4Parent, List checkedId){
+        String parent = StringUtils.isEmpty(fieldName4Parent)?"parentid":fieldName4Parent;
         List rootList = new ArrayList();
         List childList = new ArrayList();
         sourceList.stream().forEach(item ->{
-            if(ReflectUtils.invokeGetter(item,"parentid") == null || (Long)ReflectUtils.invokeGetter(item,"parentid") == 0){
+            if(ReflectUtils.invokeGetter(item,parent) == null || (Long)ReflectUtils.invokeGetter(item,parent) == 0){
                 rootList.add(item);
             }else{
                 childList.add(item);
@@ -40,7 +40,11 @@ public class TreeUtils {
      * @return
      */
     public static String generateJSONTree(Collection sourceList, String fieldName4Text){
-        return generateJSONTree(sourceList,fieldName4Text,null);
+        return generateJSONTree(sourceList,fieldName4Text,null,null);
+    }
+
+    public static String generateJSONTree(Collection sourceList, String fieldName4Text,String fieldName4Parent){
+        return generateJSONTree(sourceList,fieldName4Text,fieldName4Parent,null);
     }
 
     private static void packageTreeList(List<Tree> treeList,Object item,List childList,String fieldName4Text, List checkedId){
