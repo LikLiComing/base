@@ -47,6 +47,10 @@ public class TreeUtils {
         return generateJSONTree(sourceList,fieldName4Text,fieldName4Parent,null);
     }
 
+    public static String generateJSONTree(Collection sourceList, String fieldName4Text, List checkedId){
+        return generateJSONTree(sourceList,fieldName4Text,null,checkedId);
+    }
+
     private static void packageTreeList(List<Tree> treeList,Object item,List childList,String fieldName4Text, List checkedId){
         Tree tree = new Tree();
         tree.setId(ReflectUtils.invokeGetter(item,"id")+"");
