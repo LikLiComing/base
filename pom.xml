@@ -6,7 +6,9 @@
 		<module>escredit-base-service</module>
 		<module>escredit-base-mq</module>
 		<module>escredit-base-third</module>
-    </modules>
+		<module>escredit-base-search</module>
+		<module>escredit-base-boot</module>
+	</modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -21,8 +23,7 @@
 	<properties>
 		<springboot.version>2.2.2.RELEASE</springboot.version>
 		<java.version>1.8</java.version>
-		<java.version>1.8</java.version>
-		<commons-lang3.version>3.3.2</commons-lang3.version>
+		<commons-lang3.version>3.9</commons-lang3.version>
 		<guava.version>18.0</guava.version>
 
 		<ehcache.version>2.6.9</ehcache.version>
@@ -64,9 +65,28 @@
 	</distributionManagement>
 
 	<dependencies>
+
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.3</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 

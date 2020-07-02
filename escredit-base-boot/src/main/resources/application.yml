@@ -1,0 +1,5 @@
+escredit:
+  base:
+    boot:
+      log:
+        enable: true
