@@ -79,7 +79,11 @@ public class LogAspect {
         String account="vistor";
         if(logService != null){
             account = logService.getCurrentUser();
-            account = HiddenFieldUtils.hiddenPhoneNum(account);
+            try {
+                account = HiddenFieldUtils.hiddenPhoneNum(account);
+            }catch (Exception e){
+                logger.debug("account:{}",e.getMessage());
+            }
         }
 
         Map<String, Object> threadInfo = new HashMap<>();
