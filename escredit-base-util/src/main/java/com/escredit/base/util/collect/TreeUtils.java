@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class TreeUtils {
 
-    public static String generateJSONTree(Collection sourceList, String fieldName4Text,String fieldName4Parent, List checkedId){
+    public static String generateJSONTree(Collection sourceList, String fieldName4Text,String fieldName4Parent, List checkedId, boolean selected, boolean expanded){
         String parent = StringUtils.isEmpty(fieldName4Parent)?"parentid":fieldName4Parent;
         List rootList = new ArrayList();
         List childList = new ArrayList();
@@ -28,7 +28,7 @@ public class TreeUtils {
         });
         List<Tree> treeList = new ArrayList();
         rootList.stream().forEach(item ->{
-            packageTreeList(treeList,item,childList,fieldName4Text,checkedId);
+            packageTreeList(treeList,item,childList,fieldName4Text,checkedId,selected,expanded);
         });
         return JSONArray.toJSONString(treeList);
     }
@@ -40,41 +40,53 @@ public class TreeUtils {
      * @return
      */
     public static String generateJSONTree(Collection sourceList, String fieldName4Text){
-        return generateJSONTree(sourceList,fieldName4Text,null,null);
+        return generateJSONTree(sourceList,fieldName4Text,null,null,false,true);
     }
 
     public static String generateJSONTree(Collection sourceList, String fieldName4Text,String fieldName4Parent){
-        return generateJSONTree(sourceList,fieldName4Text,fieldName4Parent,null);
+        return generateJSONTree(sourceList,fieldName4Text,fieldName4Parent,null,false,true);
     }
 
     public static String generateJSONTree(Collection sourceList, String fieldName4Text, List checkedId){
-        return generateJSONTree(sourceList,fieldName4Text,null,checkedId);
+        return generateJSONTree(sourceList,fieldName4Text,null,checkedId,false,true);
     }
 
-    private static void packageTreeList(List<Tree> treeList,Object item,List childList,String fieldName4Text, List checkedId){
+    public static String generateJSONTree(Collection sourceList, String fieldName4Text, List checkedId, Boolean selected, Boolean expanded){
+        return generateJSONTree(sourceList,fieldName4Text,null,checkedId, selected, expanded);
+    }
+
+    private static void packageTreeList(List<Tree> treeList,Object item,List childList,String fieldName4Text, List checkedId, boolean selected, boolean expanded){
         Tree tree = new Tree();
         tree.setId(ReflectUtils.invokeGetter(item,"id")+"");
         tree.setText(ReflectUtils.invokeGetter(item,fieldName4Text));
         tree.setHref(ReflectUtils.invokeGetter(item,"href"));
         tree.setObj(item);
 
+        State state = new State();
+        state.setChecked(false);
+        state.setDisabled(false);
+        state.setSelected(selected);
+        state.setExpanded(expanded);
+
         if(checkedId !=null){
             boolean isMatch = checkedId.contains(ReflectUtils.invokeGetter(item, "id"));
-            tree.setState(new state(isMatch,false,true,isMatch));
+            state.setSelected(isMatch);
+            state.setChecked(isMatch);
+            tree.setState(state);
         }else{
-            tree.setState(new state(false,false,true,false));
+            tree.setState(state);
         }
-        tree.setNodes(getChildRole(ReflectUtils.invokeGetter(item,"id"),childList,fieldName4Text,checkedId));
+        tree.setNodes(getChildRole(ReflectUtils.invokeGetter(item,"id"),childList,fieldName4Text,checkedId, selected, expanded));
         treeList.add(tree);
     }
 
-    private static List<Tree> getChildRole(Long parentid,List childList, String fieldName4Text, List checkedId){
+    private static List<Tree> getChildRole(Long parentid,List childList, String fieldName4Text, List checkedId, boolean selected, boolean expanded){
         List<Tree> treeList = new ArrayList();
         childList.stream().forEach(item->{
-            if(ReflectUtils.invokeGetter(item,"parentid") !=parentid){
+            if(!parentid.equals(ReflectUtils.invokeGetter(item,"parentid"))){
                 return;
             }
-            packageTreeList(treeList,item,childList,fieldName4Text,checkedId);
+            packageTreeList(treeList,item,childList,fieldName4Text,checkedId, selected,expanded);
         });
         return treeList;
     }
@@ -92,7 +104,7 @@ public class TreeUtils {
 
         private String href;
 
-        private state state;
+        private State state;
 
         private Object obj;
 
@@ -136,11 +148,11 @@ public class TreeUtils {
             this.href = href;
         }
 
-        public TreeUtils.state getState() {
+        public TreeUtils.State getState() {
             return state;
         }
 
-        public void setState(TreeUtils.state state) {
+        public void setState(TreeUtils.State state) {
             this.state = state;
         }
 
@@ -176,17 +188,17 @@ public class TreeUtils {
         }
     }
 
-    static class state{
+    static class State{
         private boolean checked;
         private boolean disabled;
         private boolean expanded;
         private boolean selected;
 
-        public state(){
+        public State(){
 
         }
 
-        public state(boolean checked, boolean disabled, boolean expanded, boolean selected) {
+        public State(boolean checked, boolean disabled, boolean expanded, boolean selected) {
             this.checked = checked;
             this.disabled = disabled;
             this.expanded = expanded;
