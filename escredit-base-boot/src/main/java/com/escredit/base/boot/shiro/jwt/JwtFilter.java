@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.escredit.base.boot.shiro.ShiroProperties;
 import com.escredit.base.boot.shiro.filter.BaseFilter;
 import com.escredit.base.entity.DTO;
+import com.escredit.base.util.lang.StringUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,10 @@ public class JwtFilter extends BaseFilter {
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         String token = ((HttpServletRequest) request).getHeader(shiroProperties.getJwt().getTokenName());
+        //图片路径，会传token
+        if(StringUtils.isEmpty(token)){
+            token = request.getParameter(shiroProperties.getJwt().getTokenName());
+        }
         if (token != null) {
             try {
                 executeLogin(request, response);
