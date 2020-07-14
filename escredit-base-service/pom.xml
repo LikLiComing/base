@@ -4,7 +4,7 @@
     <parent>
         <artifactId>escredit-base</artifactId>
         <groupId>com.escredit.base</groupId>
-        <version>1.5.7</version>
+        <version>1.5.8-SNAPSHOT</version>
     </parent>
 
     <artifactId>escredit-base-service</artifactId>
