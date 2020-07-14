@@ -1,17 +1,15 @@
 package com.escredit.base.boot.documantation.swagger;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * swagger
  */
+@Component
 @ConfigurationProperties(prefix = "escredit.base.boot.swagger")
 public class SwaggerProperties {
     private boolean enable;
-
-    private String tokenName = "authhead";
-
-    private String tokenValue;
 
     private String title = "接口列表";
 
@@ -41,22 +39,6 @@ public class SwaggerProperties {
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    public String getTokenValue() {
-        return tokenValue;
-    }
-
-    public void setTokenValue(String tokenValue) {
-        this.tokenValue = tokenValue;
-    }
-
-    public String getTokenName() {
-        return tokenName;
-    }
-
-    public void setTokenName(String tokenName) {
-        this.tokenName = tokenName;
     }
 
     public boolean isEnable() {

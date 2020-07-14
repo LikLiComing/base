@@ -1,11 +1,13 @@
 package com.escredit.base.boot.web;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * WebMvc
  */
 @ConfigurationProperties(prefix = "escredit.base.boot.web.mvc")
+@Component
 public class WebMvcProperties {
 
     private boolean enable = false;

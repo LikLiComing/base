@@ -43,6 +43,9 @@
 
 		<servlet.version>4.0.1</servlet.version>
 		<springfox.swagger.version>2.9.2</springfox.swagger.version>
+
+		<shiro.version>1.4.1</shiro.version>
+		<jwt.version>3.4.0</jwt.version>
 	</properties>
 
 	<scm>
@@ -101,6 +104,22 @@
 					<useReleaseProfile>false</useReleaseProfile>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<configuration>
+					<attach>true</attach>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

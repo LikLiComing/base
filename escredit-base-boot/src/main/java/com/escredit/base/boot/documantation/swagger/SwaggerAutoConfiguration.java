@@ -1,5 +1,6 @@
 package com.escredit.base.boot.documantation.swagger;
 
+import com.escredit.base.boot.shiro.ShiroProperties;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties(com.escredit.base.boot.documantation.swagger.SwaggerProperties.class)
 @ConditionalOnProperty(prefix = "escredit.base.boot.swagger", name = "enable", havingValue = "true")
 @EnableSwagger2
 public class SwaggerAutoConfiguration {
@@ -28,12 +28,15 @@ public class SwaggerAutoConfiguration {
     @Autowired
     private SwaggerProperties swaggerProperties;
 
+    @Autowired
+    private ShiroProperties shiroProperties;
+
     private List<Parameter> setHeaderToken() {
         List<Parameter> pars = new ArrayList<>();
         ParameterBuilder tokenPar = new ParameterBuilder();
-        tokenPar.name(swaggerProperties.getTokenName()).description(swaggerProperties.getTokenName())
+        tokenPar.name(shiroProperties.getJwt().getTokenName()).description(shiroProperties.getJwt().getTokenName())
                 .modelRef(new ModelRef("string")).parameterType("header").required(false)
-                .defaultValue(swaggerProperties.getTokenValue()).build();
+                .defaultValue(shiroProperties.getJwt().getTokenValue()).build();
         pars.add(tokenPar.build());
         return pars;
     }
