@@ -14,7 +14,9 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 对象操作工具类, 继承org.apache.commons.lang3.ObjectUtils类
@@ -134,7 +136,7 @@ public class ObjectUtils extends org.apache.commons.lang3.ObjectUtils {
 			}
 		}
 	}
-	
+
 	/**
 	 * 序列化对象
 	 * @param object
@@ -196,31 +198,65 @@ public class ObjectUtils extends org.apache.commons.lang3.ObjectUtils {
 	 */
 	public static Map<String, Object> toMap(Object obj) {
 		Map<String, Object> map = new HashMap<>();
-		Class<?> clazz = obj.getClass();
+		if(obj == null){
+			return map;
+		}
+		Set<Field> set = getClassAllFields(obj.getClass());
 		try {
-			for (Field field : clazz.getDeclaredFields()) {
+			for (Field field : set) {
 				field.setAccessible(true);
 				String fieldName = field.getName();
+				if(field.get(obj) == null){
+					continue;
+				}
 				map.put(fieldName, field.get(obj));
 			}
 		} catch (Exception ex){
-			ex.printStackTrace();
 		}
 		return map;
 	}
 
 	public static void setFieldValue(Object obj,Map fieldValueMap) {
-		Map<String, Object> map = new HashMap<>();
+		if(obj == null){
+			return;
+		}
 		Class<?> clazz = obj.getClass();
+		Set<Field> set = getClassAllFields(clazz);
 		try {
-			for (Field field : clazz.getDeclaredFields()) {
+			for (Field field : set) {
 				field.setAccessible(true);
 				String fieldName = field.getName();
 				field.set(obj,fieldValueMap.get(fieldName));
 			}
 		} catch (Exception ex){
-			ex.printStackTrace();
 		}
+	}
+
+	public static Set<Field> getClassAllFields(Class clazz){
+		Set<Field> allGenericFields = new HashSet<Field>();
+		return getClassAllFields(clazz,allGenericFields);
+	}
+
+	public static Set<Field> getClassAllFields(Class clazz, Set<Field> allGenericFields) {
+		// 如果clazz为空则直接返回
+		if (clazz == null) {
+			return allGenericFields;
+		}
+
+		Object parent = clazz.getGenericSuperclass();
+		// 如果有父类并且父类不是Object 则递归调用
+		if (parent != null && !((Class) parent).getName().equals("Object")) {
+			getClassAllFields((Class) parent,allGenericFields);
+		}
+
+		Field[] fields = clazz.getDeclaredFields();
+		if (fields != null) {
+			for (int i = 0; i < fields.length; i++){
+				allGenericFields.add(fields[i]);
+			}
+		}
+		// 存在父类则递归调用
+		return allGenericFields;
 	}
 
 

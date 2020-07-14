@@ -14,27 +14,56 @@ public abstract class ServiceSupport implements ServiceInterface{
     @Override
     public <T> DTO add(T t) {
         try {
-            return new DTO(true).putResult("affected", getDao().insert(beforeAdd(t))).setObject(t);
+            DTO dto = beforeAdd(t);
+            //校验
+            if(!dto.isSuccess()){
+                return dto;
+            }
+            int affected = getDao().insert(t);
+            return dto.setSuccess(affected !=-1 ).putResult("affected", affected).setObject(t);
         } catch (Exception e) {
             throw new ServiceException("ServiceSupport add error", e);
         }
     }
 
-    protected <T> T beforeAdd(T t) {
-        return t;
+    protected <T> DTO beforeAdd(T t) {
+        DTO dto = new DTO(true);
+        return dto.setObject(t);
     }
 
     @Override
     public <T> DTO update(T t) {
         try {
-            return new DTO(true).putResult("changed", getDao().update(beforeModify(t))).setObject(t);// 如果返回0，表示数据未被修改
+            DTO dto = beforeModify(t);
+            //校验
+            if(!dto.isSuccess()){
+                return dto;
+            }
+            int affected = getDao().update(t);
+            return dto.setSuccess(affected !=-1 ).putResult("affected", affected).setObject(t);
         } catch (Exception e) {
             throw new ServiceException("ServiceSupport modify error", e);
         }
     }
 
-    protected <T> T beforeModify(T t) {
-        return t;
+    @Override
+    public <T> DTO updatePartial(T t) {
+        try {
+            DTO dto = beforeModify(t);
+            //校验
+            if(!dto.isSuccess()){
+                return dto;
+            }
+            int affected = getDao().updatePartial(t);
+            return dto.setSuccess(affected !=-1 ).putResult("affected", affected).setObject(t);
+        } catch (Exception e) {
+            throw new ServiceException("ServiceSupport modify error", e);
+        }
+    }
+
+    protected <T> DTO beforeModify(T t) {
+        DTO dto = new DTO(true);
+        return dto.setObject(t);
     }
 
     @Override

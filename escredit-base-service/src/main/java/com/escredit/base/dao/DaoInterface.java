@@ -22,6 +22,15 @@ public interface DaoInterface {
     <T> int update(T t);
 
     /**
+     * 更新数据
+     * 有只的才更新
+     *
+     * @param t
+     * @return
+     */
+    <T> int updatePartial(T t);
+
+    /**
      * 根据 id 删除单条记录
      *
      * @param id
