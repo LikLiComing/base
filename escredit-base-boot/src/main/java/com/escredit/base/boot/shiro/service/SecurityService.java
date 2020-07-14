@@ -10,6 +10,9 @@ import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by liyongping on 2020/7/13 12:53 PM
  */
@@ -24,6 +27,24 @@ public abstract class SecurityService {
      * @return obj[0]=Principal,obj[1]=Credentials
      */
     public abstract Object[] varifyPrincipalAndCredentials(Object principal,Object credentials);
+
+    /**
+     * 获取拥有角色
+     * @param principal
+     * @return
+     */
+    public Set<String> findRoles(Object principal){
+        return new HashSet();
+    }
+
+    /**
+     * 获取拥有权限
+     * @param principal
+     * @return
+     */
+    public Set<String> findPermissions(Object principal){
+        return new HashSet();
+    }
 
     public DTO login(AuthenticationToken token){
         DTO dto = new DTO();
@@ -80,4 +101,5 @@ public abstract class SecurityService {
         String jwtToken = JwtUtil.sign(obj,secret,shiroProperties.getJwt().getExpireTime());
         return jwtToken;
     }
+
 }

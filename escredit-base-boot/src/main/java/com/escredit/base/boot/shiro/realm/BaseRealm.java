@@ -1,7 +1,6 @@
 package com.escredit.base.boot.shiro.realm;
 
 import com.escredit.base.boot.shiro.service.SecurityService;
-import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -12,6 +11,8 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 /**
  * Created by liyongping on 2020/7/13 1:19 PM
@@ -35,8 +36,13 @@ public class BaseRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
-        return authorizationInfo;
+        Object principal = principals.getPrimaryPrincipal();
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+        Set<String> roleNames = securityService.findRoles(principal);
+        Set<String> permissions = securityService.findPermissions(principal);
+        info.setRoles(roleNames);
+        info.setStringPermissions(permissions);
+        return info;
     }
 
     /**

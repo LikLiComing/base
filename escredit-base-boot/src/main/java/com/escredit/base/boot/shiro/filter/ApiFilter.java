@@ -49,7 +49,7 @@ public abstract class ApiFilter extends BaseFilter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String targetUrl = httpServletRequest.getRequestURI();
         String[] whiteUrl = shiroProperties.getApi().getWhiteUrl();
-        if(whiteUrl != null && whiteUrl.length >1){
+        if(whiteUrl != null && whiteUrl.length >=1){
             if (Arrays.stream(shiroProperties.getApi().getWhiteUrl()).anyMatch(url -> targetUrl.contains(url))) {
                 return true;
             }
