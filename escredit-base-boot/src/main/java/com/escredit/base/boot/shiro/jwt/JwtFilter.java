@@ -70,6 +70,9 @@ public class JwtFilter extends BaseFilter {
     protected boolean executeLogin(ServletRequest request, ServletResponse response){
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String token = httpServletRequest.getHeader(shiroProperties.getJwt().getTokenName());
+        if(StringUtils.isEmpty(token)){
+            token = request.getParameter(shiroProperties.getJwt().getTokenName());
+        }
         JwtToken jwtToken = new JwtToken(token);
         // 提交给realm进行登入，如果错误他会抛出异常并被捕获
         getSubject(request, response).login(jwtToken);
