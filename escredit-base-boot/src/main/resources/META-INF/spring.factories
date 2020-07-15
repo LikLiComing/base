@@ -1,5 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.escredit.base.boot.aop.idempotent.IdempotentAutoConfiguration,\
+com.escredit.base.boot.aop.api.ApiAspect,\
 com.escredit.base.boot.aop.log.LogAspect,\
 com.escredit.base.boot.documantation.swagger.SwaggerAutoConfiguration,\
 com.escredit.base.boot.web.WebMvcAutoConfiguration,\

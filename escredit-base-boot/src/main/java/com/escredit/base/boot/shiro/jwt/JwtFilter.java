@@ -37,11 +37,7 @@ public class JwtFilter extends BaseFilter {
      */
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
-        String token = ((HttpServletRequest) request).getHeader(shiroProperties.getJwt().getTokenName());
-        //图片路径，会传token
-        if(StringUtils.isEmpty(token)){
-            token = request.getParameter(shiroProperties.getJwt().getTokenName());
-        }
+        String token = getToken((HttpServletRequest) request);
         if (token != null) {
             try {
                 executeLogin(request, response);
@@ -68,16 +64,25 @@ public class JwtFilter extends BaseFilter {
      */
     @Override
     protected boolean executeLogin(ServletRequest request, ServletResponse response){
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String token = httpServletRequest.getHeader(shiroProperties.getJwt().getTokenName());
-        if(StringUtils.isEmpty(token)){
-            token = request.getParameter(shiroProperties.getJwt().getTokenName());
-        }
+        String token = getToken((HttpServletRequest) request);
         JwtToken jwtToken = new JwtToken(token);
         // 提交给realm进行登入，如果错误他会抛出异常并被捕获
         getSubject(request, response).login(jwtToken);
         // 如果没有抛出异常则代表登入成功，返回true
         return true;
+    }
+
+    /**
+     * 获取token
+     * @param httpServletRequest
+     * @return
+     */
+    private String getToken(HttpServletRequest httpServletRequest){
+        String token = httpServletRequest.getHeader(shiroProperties.getJwt().getTokenName());
+        if(StringUtils.isEmpty(token)){
+            token = httpServletRequest.getParameter(shiroProperties.getJwt().getTokenName());
+        }
+        return token;
     }
 
 }
