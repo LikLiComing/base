@@ -6,9 +6,12 @@ public abstract class ApiService {
 
     /**
      * 校验接口访问权限-业务数据有效性
+     * 默认方法
      * @return
      */
-   public abstract DTO checkPermission();
+   public DTO checkPermission(){
+       return new DTO(true);
+   }
 
     /**
      * 设置token

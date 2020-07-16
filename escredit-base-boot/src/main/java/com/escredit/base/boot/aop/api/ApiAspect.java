@@ -2,6 +2,7 @@ package com.escredit.base.boot.aop.api;
 
 import com.escredit.base.entity.DTO;
 import com.escredit.base.util.RequestUtils;
+import com.escredit.base.util.reflect.ReflectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -98,10 +99,18 @@ public class ApiAspect {
      * @param apiService
      */
     private DTO checkPermission(Api api, ApiService apiService){
+        DTO dto = new DTO(true);
         if(!api.permission()){
-            return new DTO(true);
+            return dto;
         }
-        return apiService.checkPermission();
+        String[] methods = api.permissionMethods();
+        for(String method: methods){
+            dto = ReflectUtils.invokeMethod(apiService,method,null,null);
+            if(!dto.isSuccess()){
+                return dto;
+            }
+        }
+        return dto;
     }
 
     /**

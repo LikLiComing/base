@@ -24,4 +24,11 @@ public @interface Api {
      */
     Class<?> apiServiceImpl();
 
+    /**
+     * 数据校验中的执行方法
+     * 默认是checkPermission，可定义多个
+     * @return
+     */
+    String[] permissionMethods() default {"checkPermission"};
+
 }
