@@ -35,7 +35,10 @@ public class ApiAspect {
         Api api = targetMethod.getAnnotation(Api.class);
         DTO dto = checkApi(api);
         if(!dto.isSuccess()){
-            return dto;
+            setErr(dto);
+            if(String.class == targetMethod.getReturnType()){
+                return "/error/500";
+            }
         }
         Object obj = null;
         try {
@@ -99,6 +102,20 @@ public class ApiAspect {
             return new DTO(true);
         }
         return apiService.checkPermission();
+    }
+
+    /**
+     * 设置错误反馈
+     * @param dto
+     */
+    private void setErr(DTO dto){
+        try {
+            HttpServletRequest request = RequestUtils.getRequest();
+            if(request!=null){
+                request.setAttribute("errmsg",dto.getErrmsg());
+            }
+        } catch (Exception e) {
+        }
     }
 
 }
