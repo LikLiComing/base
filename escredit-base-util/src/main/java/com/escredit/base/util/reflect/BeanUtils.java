@@ -19,16 +19,24 @@ public class BeanUtils {
      * 可构造重载方法, 设置可选参数
      */
     public static <T> T copyPropertiesIgnoreCase(Object source, Object target) {
+
         Map<String, Field> sourceMap = CacheFieldMap.getFieldMap(source.getClass());
+
+        //遍历target-Field
         CacheFieldMap.getFieldMap(target.getClass()).values().forEach((it) -> {
-            //转小写并忽略下划线
+
+            //转小写并忽略下划线, 取source-Field
             Field field = sourceMap.get(it.getName().toLowerCase().replace("_", ""));
+
             if (field != null) {
+
                 it.setAccessible(true);
                 field.setAccessible(true);
+
                 try {
-                    //忽略null和空字符串
-                    if (field.get(source) != null && StringUtils.isBlank(field.get(source).toString())) {
+                    //忽略null和空字符串, source空值不覆盖target值
+                    if (null != field.get(source) && StringUtils.isNotEmpty(field.get(source).toString())) {
+                        //赋值
                         it.set(target, field.get(source));
                     }
                 } catch (IllegalAccessException e) {
@@ -37,13 +45,13 @@ public class BeanUtils {
                 }
             }
         });
-        System.out.println(target.toString());
+
         return (T) target;
     }
 
     private static class CacheFieldMap {
 
-        //map, 支持多个类型同时转换
+        //map缓存, 同类型只转换一次
         private static Map<String, Map<String, Field>> cacheMap = new HashMap<>();
 
         private static Map<String, Field> getFieldMap(Class clazz) {
@@ -56,7 +64,7 @@ public class BeanUtils {
                     if (result == null) {
                         Map<String, Field> fieldMap = new HashMap<>();
                         for (Field field : clazz.getDeclaredFields()) {
-                            //转小写并忽略下划线
+                            //转小写并忽略下划线, 存Field
                             fieldMap.put(field.getName().toLowerCase().replace("_", ""), field);
                         }
                         cacheMap.put(clazz.getName(), fieldMap);
@@ -64,6 +72,7 @@ public class BeanUtils {
                     }
                 }
             }
+
             return result;
         }
     }
