@@ -14,6 +14,19 @@ public class DroolsProperties {
      */
     private String[] path = {"rules/"};
 
+    /**
+     * 是否打印调试
+     */
+    private boolean debug;
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
     public boolean isEnable() {
         return enable;
     }
