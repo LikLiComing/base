@@ -26,16 +26,67 @@ public class ShiroProperties {
      */
     private String loginUrl = "/admin/user/login/tel";
 
+    /**
+     * 登录成功后的url
+     */
+    private String successUrl = "/admin/main/mainPage";
+
+    private Password password = new Password();
+
     private Jwt jwt = new Jwt();
 
     private Code code = new Code();
 
     private Api api = new Api();
 
+    private CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
+
+    private EhCacheManager ehCacheManager = new EhCacheManager();
+
     /**
      * shiro的过滤属性，格式为"key,value"
      */
     private List<String> filterChainDefinitionList;
+
+    /**
+     * 是否采用cglib代理方式，从而解决shiro注解导致aop失效的问题
+     */
+    private boolean proxyTargetClass;
+
+    /**
+     * 是否设置CaptchaFormAuthenticationFilter.java
+     */
+    private boolean onLoginSuccess;
+
+    /**
+     * 密码
+     */
+    public static class Password{
+
+        private boolean enable;
+
+        /**
+         * 实现securityService中验证部分的类别名
+         * todo 目前写的固定值
+         */
+        private String serviceName = "passwordSecurityService";
+
+        public String getServiceName() {
+            return serviceName;
+        }
+
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
+        }
+
+        public boolean isEnable() {
+            return enable;
+        }
+
+        public void setEnable(boolean enable) {
+            this.enable = enable;
+        }
+    }
 
     /**
      * 验证码
@@ -201,6 +252,78 @@ public class ShiroProperties {
         }
     }
 
+    /**
+     * CookieRememberMeManager
+     */
+    public static class CookieRememberMeManager{
+
+        private boolean enable;
+
+        private String cookieName = "rememberMe";
+
+        private boolean cookieHttpOnly = true;
+
+        private Integer cookieMaxAge = 2592000;
+
+        private String cipherKey = "2AvVhdsgUs0FSA3SDFAdag==";
+
+        public boolean isEnable() {
+            return enable;
+        }
+
+        public void setEnable(boolean enable) {
+            this.enable = enable;
+        }
+
+        public String getCookieName() {
+            return cookieName;
+        }
+
+        public void setCookieName(String cookieName) {
+            this.cookieName = cookieName;
+        }
+
+        public boolean isCookieHttpOnly() {
+            return cookieHttpOnly;
+        }
+
+        public void setCookieHttpOnly(boolean cookieHttpOnly) {
+            this.cookieHttpOnly = cookieHttpOnly;
+        }
+
+        public Integer getCookieMaxAge() {
+            return cookieMaxAge;
+        }
+
+        public void setCookieMaxAge(Integer cookieMaxAge) {
+            this.cookieMaxAge = cookieMaxAge;
+        }
+
+        public String getCipherKey() {
+            return cipherKey;
+        }
+
+        public void setCipherKey(String cipherKey) {
+            this.cipherKey = cipherKey;
+        }
+    }
+
+    /**
+     * EhCacheManager
+     */
+    public class EhCacheManager{
+
+        private boolean enable;
+
+        public boolean isEnable() {
+            return enable;
+        }
+
+        public void setEnable(boolean enable) {
+            this.enable = enable;
+        }
+    }
+
     public List<String> getFilterChainDefinitionList() {
         return filterChainDefinitionList;
     }
@@ -247,5 +370,53 @@ public class ShiroProperties {
 
     public void setApi(Api api) {
         this.api = api;
+    }
+
+    public CookieRememberMeManager getCookieRememberMeManager() {
+        return cookieRememberMeManager;
+    }
+
+    public void setCookieRememberMeManager(CookieRememberMeManager cookieRememberMeManager) {
+        this.cookieRememberMeManager = cookieRememberMeManager;
+    }
+
+    public boolean isProxyTargetClass() {
+        return proxyTargetClass;
+    }
+
+    public void setProxyTargetClass(boolean proxyTargetClass) {
+        this.proxyTargetClass = proxyTargetClass;
+    }
+
+    public String getSuccessUrl() {
+        return successUrl;
+    }
+
+    public void setSuccessUrl(String successUrl) {
+        this.successUrl = successUrl;
+    }
+
+    public boolean isOnLoginSuccess() {
+        return onLoginSuccess;
+    }
+
+    public void setOnLoginSuccess(boolean onLoginSuccess) {
+        this.onLoginSuccess = onLoginSuccess;
+    }
+
+    public Password getPassword() {
+        return password;
+    }
+
+    public void setPassword(Password password) {
+        this.password = password;
+    }
+
+    public EhCacheManager getEhCacheManager() {
+        return ehCacheManager;
+    }
+
+    public void setEhCacheManager(EhCacheManager ehCacheManager) {
+        this.ehCacheManager = ehCacheManager;
     }
 }

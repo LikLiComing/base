@@ -9,6 +9,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,9 +57,13 @@ public class BaseRealm extends AuthorizingRealm {
         Object principal = authenticationToken.getPrincipal();
         Object credentials = authenticationToken.getCredentials();
         Object[] pc = securityService.varifyPrincipalAndCredentials(principal,credentials);
-        if(pc.length==2){
+        if(pc.length>=2){
             principal = pc[0];
             credentials = pc[1];
+        }
+        //取salt
+        if(pc.length==3){
+            return new SimpleAuthenticationInfo(principal, credentials, ByteSource.Util.bytes(pc[2]),getName());
         }
         return new SimpleAuthenticationInfo(principal, credentials, getName());
     }

@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtRealm extends BaseRealm {
 
+    public static final String realmName = "Jwt";
+
     @Override
     @Autowired(required = false)
     @Qualifier(value = "jwtSecurityService")
@@ -24,7 +26,7 @@ public class JwtRealm extends BaseRealm {
 
     @Override
     public String getName() {
-        return "Jwt";
+        return realmName;
     }
 
 }

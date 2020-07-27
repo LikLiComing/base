@@ -1,7 +1,9 @@
 package com.escredit.base.boot.shiro.service;
 
 import com.escredit.base.boot.shiro.ShiroProperties;
+import com.escredit.base.boot.shiro.jwt.JwtToken;
 import com.escredit.base.boot.shiro.jwt.JwtUtil;
+import com.escredit.base.boot.shiro.token.CodeToken;
 import com.escredit.base.entity.DTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -24,7 +26,7 @@ public abstract class SecurityService {
 
     /**
      * 验证并获取封装后的Principal Credentials
-     * @return obj[0]=Principal,obj[1]=Credentials
+     * @return obj[0]=Principal,obj[1]=Credentials,obj[2]=salt
      */
     public abstract Object[] varifyPrincipalAndCredentials(Object principal,Object credentials);
 
@@ -50,25 +52,28 @@ public abstract class SecurityService {
         DTO dto = new DTO();
         Subject userSub = SecurityUtils.getSubject();
         String error ="";
+        boolean isTel = (token instanceof JwtToken || token instanceof CodeToken);
+        String credentialsName = isTel?"验证码":"密码";
+        String accountName = isTel?"手机号":"帐号";
         try {
             userSub.login(token);
             Object user = userSub.getPrincipal();
             dto.setObject(user);
-        }catch (IncorrectCredentialsException e) {
-            error = "验证码错误.";
-        } catch (ExcessiveAttemptsException e) {
-            error = "登录失败次数过多";
-        } catch (LockedAccountException e) {
-            error = "帐号已被锁定.";
-        } catch (DisabledAccountException e) {
-            error = "帐号已被禁用.";
+        } catch (IncorrectCredentialsException e) {
+            error = credentialsName+"错误";
         } catch (ExpiredCredentialsException e) {
-            error = "帐号已过期.";
-        } catch (UnknownAccountException e) {
-            error = "手机号不存在";
+            error = credentialsName+"已过期";
+        } catch (LockedAccountException e) {
+            error = accountName+"已被锁定";
+        } catch (DisabledAccountException e) {
+            error = accountName+"已被禁用";
+        }  catch (UnknownAccountException e) {
+            error = accountName+"不存在";
         } catch (UnauthorizedException e) {
             error = "您没有得到相应的授权！";
-        }catch (Exception e) {
+        } catch (ExcessiveAttemptsException e) {
+            error = "登录失败次数过多";
+        } catch (Exception e) {
             error = "请重新登录！";
         }
         dto.setSuccess(StringUtils.isEmpty(error)?true:false);
@@ -80,13 +85,26 @@ public abstract class SecurityService {
 
     /**
      * 帐号密码登录
-     * @param account
-     * @param password
+     * @param tel
+     * @param code
      * @param rememberMe
      * @return
      */
-    public DTO loginByUsernamePassword(String account,String password,Boolean rememberMe){
-        UsernamePasswordToken token = new UsernamePasswordToken(account,password,Boolean.valueOf(rememberMe));
+    public DTO loginByUsernamePassword(String tel,String code,Boolean rememberMe){
+        UsernamePasswordToken token = new UsernamePasswordToken(tel,code,Boolean.valueOf(rememberMe));
+        DTO dto = this.login(token);
+        return dto;
+    }
+
+    /**
+     * 手机验证码登录
+     * @param account
+     * @param code
+     * @param rememberMe
+     * @return
+     */
+    public DTO loginByCode(String account,String code,Boolean rememberMe){
+        CodeToken token = new CodeToken(account,code,Boolean.valueOf(rememberMe));
         DTO dto = this.login(token);
         return dto;
     }

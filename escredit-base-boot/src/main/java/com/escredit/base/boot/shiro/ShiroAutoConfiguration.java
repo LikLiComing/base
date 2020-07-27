@@ -1,27 +1,41 @@
 package com.escredit.base.boot.shiro;
 
 import com.escredit.base.boot.shiro.filter.ApiFilter;
+import com.escredit.base.boot.shiro.filter.CaptchaFormAuthenticationFilter;
 import com.escredit.base.boot.shiro.jwt.JwtFilter;
 import com.escredit.base.boot.shiro.jwt.JwtRealm;
 import com.escredit.base.boot.shiro.realm.CodeRealm;
+import com.escredit.base.boot.shiro.realm.PasswordRealm;
 import com.escredit.base.boot.shiro.realm.UserModularRealmAuthenticator;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy;
+import org.apache.shiro.cache.ehcache.EhCacheManager;
+import org.apache.shiro.codec.Base64;
 import org.apache.shiro.crypto.hash.Sha1Hash;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
+import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.servlet.SimpleCookie;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.DelegatingFilterProxy;
 
+import javax.servlet.DispatcherType;
 import java.util.*;
 
 @Configuration
@@ -34,15 +48,21 @@ public class ShiroAutoConfiguration {
     @Autowired(required = false)
     private ApiFilter apiFilter;
 
-    /**
-     * 开启shiro权限注解
-     * @return DefaultAdvisorAutoProxyCreator
-     */
     @Bean
-    public static DefaultAdvisorAutoProxyCreator creator(){
-        DefaultAdvisorAutoProxyCreator creator = new DefaultAdvisorAutoProxyCreator();
-        creator.setProxyTargetClass(true);
-        return creator;
+    public EhCacheManager ehCacheManager(){
+        EhCacheFactoryBean factoryBean = new EhCacheFactoryBean();
+        factoryBean.setEternal(false);
+        factoryBean.setTimeToIdleSeconds(120);
+        factoryBean.setTimeToLiveSeconds(120);
+        factoryBean.setDiskExpiryThreadIntervalSeconds(900);
+        factoryBean.setCacheName("shiroCache");
+
+        CacheManager cm = CacheManager.create();
+        Cache cache = new Cache(factoryBean);
+        cm.addCache(cache);
+        EhCacheManager ecacheManager = new EhCacheManager();
+        ecacheManager.setCacheManager(cm);
+        return ecacheManager;
     }
 
     /**
@@ -71,14 +91,24 @@ public class ShiroAutoConfiguration {
     }
 
     /**
+     * 密码登录Realm
+     * @return
+     */
+    @Bean
+    public PasswordRealm passwordRealm(){
+        PasswordRealm passwordRealm = new PasswordRealm();
+        passwordRealm.setCredentialsMatcher(hashedCredentialsMatcher());
+        return passwordRealm;
+    }
+
+    /**
      * 验证码登录Realm
-     * @param matcher 密码匹配器
      * @return CodeRealm
      */
     @Bean
-    public CodeRealm codeRealm(@Qualifier("hashedCredentialsMatcher") HashedCredentialsMatcher matcher){
+    public CodeRealm codeRealm(){
         CodeRealm codeRealm = new CodeRealm();
-        codeRealm.setCredentialsMatcher(matcher);
+        codeRealm.setCredentialsMatcher(hashedCredentialsMatcher());
         return codeRealm;
     }
 
@@ -107,6 +137,7 @@ public class ShiroAutoConfiguration {
         bean.setSecurityManager(securityManager);
         // 设置未登录跳转url
         bean.setLoginUrl(shiroProperties.getLoginUrl());
+        bean.setSuccessUrl(shiroProperties.getSuccessUrl());
 
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
 
@@ -144,6 +175,9 @@ public class ShiroAutoConfiguration {
             apiFilter.setShiroProperties(shiroProperties);
             filter.put(apiKey, apiFilter);
         }
+        if(shiroProperties.isOnLoginSuccess()){
+            filter.put("authc",new CaptchaFormAuthenticationFilter());
+        }
         bean.setFilters(filter);
         return bean;
     }
@@ -159,30 +193,90 @@ public class ShiroAutoConfiguration {
      *  SecurityManager 是 Shiro 架构的核心，通过它来链接Realm和用户(文档中称之为Subject.)
      */
     @Bean
-    public SecurityManager securityManager(@Autowired CodeRealm codeRealm,@Autowired UserModularRealmAuthenticator userModularRealmAuthenticator) {
+    public SecurityManager securityManager(@Autowired UserModularRealmAuthenticator userModularRealmAuthenticator) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         // 设置realm
         securityManager.setAuthenticator(userModularRealmAuthenticator);
         List<Realm> realms = new ArrayList<>();
+        //密码
+        if(shiroProperties.getPassword().isEnable()){
+            realms.add(passwordRealm());
+        }
         //验证码
         if(shiroProperties.getCode().isEnable()){
-            realms.add(codeRealm);
+            realms.add(codeRealm());
         }
         //Jwt
         if(shiroProperties.getJwt().isEnable()){
             realms.add(jwtRealm());
+
+            //关闭shiro自带的session，详情见文档
+            DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
+            DefaultSessionStorageEvaluator defaultSessionStorageEvaluator = new DefaultSessionStorageEvaluator();
+            defaultSessionStorageEvaluator.setSessionStorageEnabled(false);
+            subjectDAO.setSessionStorageEvaluator(defaultSessionStorageEvaluator);
+            securityManager.setSubjectDAO(subjectDAO);
         }
         securityManager.setRealms(realms);
 
-        /*
-         * 关闭shiro自带的session，详情见文档
-         */
-        DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
-        DefaultSessionStorageEvaluator defaultSessionStorageEvaluator = new DefaultSessionStorageEvaluator();
-        defaultSessionStorageEvaluator.setSessionStorageEnabled(false);
-        subjectDAO.setSessionStorageEvaluator(defaultSessionStorageEvaluator);
-        securityManager.setSubjectDAO(subjectDAO);
+        //cookie
+        if(shiroProperties.getCookieRememberMeManager().isEnable()){
+            ShiroProperties.CookieRememberMeManager cookieRememberMeManager = shiroProperties.getCookieRememberMeManager();
+            SimpleCookie cookie = new SimpleCookie(cookieRememberMeManager.getCookieName());
+            cookie.setHttpOnly(cookieRememberMeManager.isCookieHttpOnly());
+            cookie.setMaxAge(cookieRememberMeManager.getCookieMaxAge());
+
+            CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
+            rememberMeManager.setCookie(cookie);
+            rememberMeManager.setCipherKey(Base64.decode(cookieRememberMeManager.getCipherKey()));
+            securityManager.setRememberMeManager(rememberMeManager);
+        }
+        //ehCacheManager
+        if(shiroProperties.getEhCacheManager().isEnable()){
+            securityManager.setCacheManager(ehCacheManager());
+        }
 
         return securityManager;
+    }
+
+//    @Bean
+//    public EhCacheManager ehCacheManager(){
+//        EhCacheFactoryBean factoryBean = new EhCacheFactoryBean();
+//        factoryBean.setEternal(false);
+//        factoryBean.setTimeToIdleSeconds(120);
+//        factoryBean.setTimeToLiveSeconds(120);
+//        factoryBean.setDiskExpiryThreadIntervalSeconds(900);
+//        factoryBean.setMaxElementsInMemory(10000);
+//        factoryBean.setOverflowToDisk(false);
+//        factoryBean.setDiskPersistent(false);
+//        factoryBean.setCacheName("shiroCache");
+//
+//        CacheManager cm = CacheManager.create();
+//        Cache cache = new Cache(factoryBean);
+//        cm.addCache(cache);
+//
+//        EhCacheManager ecacheManager = new EhCacheManager();
+//        ecacheManager.setCacheManager(cm);
+//        return ecacheManager;
+//    }
+
+    /**
+     * 设置为cglib代理方式，解决shiro注解导致aop失效问题
+     * @return
+     */
+    @Bean
+    public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator(){
+        DefaultAdvisorAutoProxyCreator creator=new DefaultAdvisorAutoProxyCreator();
+        creator.setProxyTargetClass(shiroProperties.isProxyTargetClass());
+        return creator;
+    }
+
+    /**
+     * 保证实现了Shiro内部lifecycle函数的bean执行
+     * @return
+     */
+    @Bean
+    public static LifecycleBeanPostProcessor lifecycleBeanPostProcessor(){
+        return new LifecycleBeanPostProcessor();
     }
 }
