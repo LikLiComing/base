@@ -9,6 +9,7 @@
 		<module>escredit-base-search</module>
 		<module>escredit-base-boot</module>
 		<module>escredit-base-rules</module>
+		<module>escredit-base-email</module>
 	</modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -48,6 +49,8 @@
 		<shiro.version>1.4.1</shiro.version>
 		<jwt.version>3.4.0</jwt.version>
 		<drools.version>7.36.0.Final</drools.version>
+
+
 	</properties>
 
 	<scm>
