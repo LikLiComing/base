@@ -1,5 +1,6 @@
 package com.escredit.base.email.service;
 
+import com.escredit.base.email.config.BaseEmailProperties;
 import com.escredit.base.entity.DTO;
 import com.escredit.base.util.lang.ObjectUtils;
 import com.escredit.base.email.entity.MailRequest;
@@ -31,10 +32,10 @@ public class EmailService {
 	private String defaultFtl;
 	private String ftlFolder;
 
-	public EmailService(String emailFrom, String defaultFtl, String ftlFolder){
-		this.emailFrom = emailFrom;
-		this.defaultFtl = defaultFtl;
-		this.ftlFolder = ftlFolder;
+	public EmailService(BaseEmailProperties baseEmailProperties){
+		this.emailFrom = baseEmailProperties.getUsername();
+		this.defaultFtl = baseEmailProperties.getFtlName();
+		this.ftlFolder = baseEmailProperties.getFtlFolder();
 	}
 
 	public DTO sendEmail(MailRequest request, String ftlName) {
