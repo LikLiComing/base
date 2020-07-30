@@ -1,16 +1,17 @@
 package com.escredit.base.email.service;
 
-import com.escredit.base.email.config.BaseEmailProperties;
+import com.escredit.base.email.config.EmailProperties;
 import com.escredit.base.entity.DTO;
 import com.escredit.base.util.lang.ObjectUtils;
-import com.escredit.base.email.entity.MailRequest;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import javax.mail.MessagingException;
@@ -21,35 +22,70 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+@Service
 public class EmailService {
 
 	@Autowired
-	private JavaMailSender sender;
+	private JavaMailSender mailSender;
+
 	@Autowired
 	private Configuration config;
 
+	@Autowired
+	private EmailProperties emailProperties;
+
+	@Value("${spring.mail.username}")
 	private String emailFrom;
-	private String defaultFtl;
-	private String ftlFolder;
 
-	public EmailService(BaseEmailProperties baseEmailProperties){
-		this.emailFrom = baseEmailProperties.getUsername();
-		this.defaultFtl = baseEmailProperties.getFtlName();
-		this.ftlFolder = baseEmailProperties.getFtlFolder();
+	/**
+	 * 发送邮件
+	 * @param ftl ftl配置
+	 * @param attachFile
+	 * @return
+	 */
+	public DTO sendEmail(EmailProperties.Ftl ftl, File attachFile) {
+		ftl.setEnable(true);
+		this.emailProperties.setFtl(ftl);
+		return sendEmail(attachFile);
 	}
 
-	public DTO sendEmail(MailRequest request, String ftlName) {
-		return sendEmail(request, ftlName, null);
+	/**
+	 * 发送邮件
+	 * @param common 常规参数
+	 * @param ftl ftl参数
+	 * @param attachFile
+	 * @return
+	 */
+	public DTO sendEmail(EmailProperties.Common common,EmailProperties.Ftl ftl, File attachFile) {
+		this.emailProperties.setCommon(common);
+		ftl.setEnable(true);
+		this.emailProperties.setFtl(ftl);
+		return sendEmail(attachFile);
 	}
 
-	public DTO sendEmail(MailRequest request, File attachFile) {
-		return sendEmail(request,null, attachFile);
+	/**
+	 * 发送邮件
+	 * @param common 常规参数
+	 * @param attachFile
+	 * @return
+	 */
+	public DTO sendEmail(EmailProperties.Common common, File attachFile) {
+		this.emailProperties.setCommon(common);
+		return sendEmail(attachFile);
 	}
 
-	public DTO sendEmail(MailRequest request, String ftlName, File attachFile) {
+	/**
+	 * 发送邮件
+	 * 采用yml配置
+	 * @param attachFile
+	 * @return
+	 */
+	public DTO sendEmail(File attachFile) {
 		DTO resultDTO = new DTO();
 		boolean issuccess = true;
-		MimeMessage message = sender.createMimeMessage();
+		MimeMessage message = mailSender.createMimeMessage();
+		EmailProperties.Common common = emailProperties.getCommon();
+
 		try {
 			// set mediaType
 			MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
@@ -58,29 +94,52 @@ public class EmailService {
 			if(attachFile != null && attachFile.exists()){
 				helper.addAttachment(attachFile.getName(),attachFile);
 			}
-			ftlName = StringUtils.isEmpty(ftlName)?defaultFtl:ftlName;
-			//多个模块路径
-			config.setClassForTemplateLoading(this.getClass(),"/templates");
-			Template t = config.getTemplate(ftlFolder+"/"+ftlName);
 
-			Map dataModel = new HashMap();
-			if(request.getDataModel()!=null){
-				dataModel.putAll(request.getDataModel());
-			}
-			dataModel.putAll(ObjectUtils.toMap(request));
-
-			String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, dataModel);
-			helper.setTo(request.getTo());
-			helper.setText(html, true);
-			helper.setSubject(request.getSubject());
+			setText(helper,emailProperties);
+			helper.setTo(common.getTo());
+			helper.setSubject(common.getSubject());
 			helper.setFrom(emailFrom);
-			sender.send(message);
+			mailSender.send(message);
 
 		} catch (MessagingException | IOException | TemplateException e) {
 			issuccess = false;
 			resultDTO.putErr("-1",e.getMessage());
 		}
 		return resultDTO.setSuccess(issuccess);
+	}
+
+	/**
+	 * 设置邮件正文
+	 * @param helper
+	 * @param emailProperties
+	 * @throws IOException
+	 * @throws TemplateException
+	 * @throws MessagingException
+	 */
+	private void setText(MimeMessageHelper helper,EmailProperties emailProperties) throws IOException, TemplateException, MessagingException {
+		EmailProperties.Ftl ftl = emailProperties.getFtl();
+		EmailProperties.Common common = emailProperties.getCommon();
+		String ftlName = ftl.getFtlName();
+		String ftlFolder = ftl.getFtlFolder();
+		String ftlBasePackagePath = ftl.getFtlBasePackagePath();
+
+		//是否启动模版
+		if(ftl.isEnable() && StringUtils.isNotEmpty(ftlBasePackagePath) && StringUtils.isNotEmpty(ftlName) ){
+			//多个模块路径
+			config.setClassForTemplateLoading(this.getClass(),ftlBasePackagePath);
+			Template t = config.getTemplate(ftlFolder+"/"+ftlName);
+
+			Map dataModel = new HashMap();
+			if(ftl.getDataModel()!=null){
+				dataModel.putAll(ftl.getDataModel());
+			}
+			dataModel.putAll(ObjectUtils.toMap(common));
+
+			String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, dataModel);
+			helper.setText(html, true);
+		}else{
+			helper.setText(emailProperties.getCommon().getContent(),false);
+		}
 	}
 
 
