@@ -102,8 +102,15 @@ public class JwtUtil {
         Set<Map.Entry<String, Object>> entrys = map.entrySet();
         JWTCreator.Builder builder = JWT.create();
         for (Map.Entry<String, Object> entry : entrys) {
-                if(!(entry.getValue() instanceof Collection)){
-                    builder.withClaim(entry.getKey(),String.valueOf(entry.getValue()));
+            Object value = entry.getValue();
+                if(!(value instanceof Collection)){
+                    builder.withClaim(entry.getKey(),String.valueOf(value));
+                }else if(value instanceof List){
+                    try {
+                        List valueList = (List) value;
+                        builder.withArrayClaim(entry.getKey(), (String[]) valueList.toArray());
+                    }catch (Exception e){
+                    }
                 }
         }
 
