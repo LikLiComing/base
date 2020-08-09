@@ -21,15 +21,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
+@EnableConfigurationProperties({SwaggerProperties.class,ShiroProperties.class})
 @ConditionalOnProperty(prefix = "escredit.base.boot.swagger", name = "enable", havingValue = "true")
 @EnableSwagger2
 public class SwaggerAutoConfiguration {
 
-    @Autowired
     private SwaggerProperties swaggerProperties;
 
-    @Autowired
     private ShiroProperties shiroProperties;
+
+    public SwaggerAutoConfiguration(SwaggerProperties swaggerProperties, ShiroProperties shiroProperties) {
+        this.swaggerProperties = swaggerProperties;
+        this.shiroProperties = shiroProperties;
+    }
 
     private List<Parameter> setHeaderToken() {
         List<Parameter> pars = new ArrayList<>();

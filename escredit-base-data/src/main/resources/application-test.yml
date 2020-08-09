@@ -1,0 +1,7 @@
+escredit:
+  data:
+    service:
+      ccx:
+        account: qiyezx_apitest
+        key: 94ea9d2022da4c67
+      sms-url: http://192.168.100.111:7080/data-service/sms/general

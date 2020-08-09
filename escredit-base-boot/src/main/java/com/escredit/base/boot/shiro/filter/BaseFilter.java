@@ -1,6 +1,5 @@
 package com.escredit.base.boot.shiro.filter;
 
-import com.escredit.base.entity.DTO;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMethod;

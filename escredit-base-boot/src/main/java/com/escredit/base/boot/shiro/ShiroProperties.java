@@ -5,14 +5,12 @@ package com.escredit.base.boot.shiro;
  */
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
  * shiro
  */
-@Component
 @ConfigurationProperties(prefix = "escredit.base.boot.shiro")
 public class ShiroProperties {
 

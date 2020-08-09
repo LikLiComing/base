@@ -29,21 +29,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.filter.DelegatingFilterProxy;
 
-import javax.servlet.DispatcherType;
 import java.util.*;
 
 @Configuration
+@EnableConfigurationProperties(ShiroProperties.class)
 @ConditionalOnProperty(prefix = "escredit.base.boot.shiro", name = "enable", havingValue = "true")
 public class ShiroAutoConfiguration {
 
-    @Autowired
     private ShiroProperties shiroProperties;
+
+    public ShiroAutoConfiguration(ShiroProperties shiroProperties) {
+        this.shiroProperties = shiroProperties;
+    }
 
     @Autowired(required = false)
     private ApiFilter apiFilter;

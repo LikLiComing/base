@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -25,14 +25,18 @@ import java.text.SimpleDateFormat;
  * 实现跨域，额外资源处理，接口输出数据格式化，多文件上传等相关配置
  */
 @Configuration
+@EnableConfigurationProperties({WebMvcProperties.class,SwaggerProperties.class})
 @ConditionalOnProperty(prefix = "escredit.base.boot.web.mvc", name = "enable", havingValue = "true")
 public class WebMvcAutoConfiguration implements WebMvcConfigurer {
 
-    @Autowired
     private WebMvcProperties webMvcProperties;
 
-    @Autowired
     private SwaggerProperties swaggerProperties;
+
+    public WebMvcAutoConfiguration(WebMvcProperties webMvcProperties, SwaggerProperties swaggerProperties) {
+        this.webMvcProperties = webMvcProperties;
+        this.swaggerProperties = swaggerProperties;
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

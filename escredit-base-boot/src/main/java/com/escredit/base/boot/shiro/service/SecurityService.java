@@ -20,7 +20,6 @@ import java.util.Set;
  */
 public abstract class SecurityService {
 
-
     @Autowired
     private ShiroProperties shiroProperties;
 

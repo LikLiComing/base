@@ -3,7 +3,6 @@ package com.escredit.base.boot.aop.api;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@Component
 @ConfigurationProperties(prefix = "escredit.base.boot.api")
 public class ApiProperties {
 

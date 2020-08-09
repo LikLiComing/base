@@ -1,15 +1,13 @@
 package com.escredit.base.email.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 /**
- * @author ChH
+ * @author ChH\
  * @create 2020/7/28
  */
-@Component
 @ConfigurationProperties(prefix = "escredit.base.mail")
 public class EmailProperties {
 

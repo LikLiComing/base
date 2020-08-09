@@ -1,12 +1,10 @@
 package com.escredit.base.boot.documantation.swagger;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 /**
  * swagger
  */
-@Component
 @ConfigurationProperties(prefix = "escredit.base.boot.swagger")
 public class SwaggerProperties {
     private boolean enable;

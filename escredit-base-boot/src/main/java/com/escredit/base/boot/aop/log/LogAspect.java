@@ -20,7 +20,7 @@ import java.util.Map;
 
 @Configuration
 @Aspect
-@EnableConfigurationProperties(com.escredit.base.boot.aop.log.LogAopProperties.class)
+@EnableConfigurationProperties(LogAopProperties.class)
 @ConditionalOnProperty(prefix = "escredit.base.boot.log", name = "enable", havingValue = "true", matchIfMissing = true)
 public class LogAspect {
 

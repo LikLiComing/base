@@ -10,6 +10,7 @@
 		<module>escredit-base-boot</module>
 		<module>escredit-base-rules</module>
 		<module>escredit-base-email</module>
+		<module>escredit-base-data</module>
 	</modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
