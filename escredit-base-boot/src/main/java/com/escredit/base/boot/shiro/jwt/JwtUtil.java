@@ -79,12 +79,15 @@ public class JwtUtil {
             }
             field.setAccessible(true);
             Object value = null;
-            if(field.getType() == String.class){
-                value = valueClaim.asString();
-            }
             try {
-                field.set(obj,value);
-            } catch (IllegalAccessException e) {
+                if(field.getType() == String.class){
+                    value = valueClaim.asString();
+                }else if(field.getType() == List.class){
+                    //claim里面存放的是数组
+                    value = Arrays.asList(valueClaim.asArray(String.class));
+                }
+              field.set(obj,value);
+            } catch (Exception e) {
             }
         }
         return obj;
@@ -107,8 +110,11 @@ public class JwtUtil {
                     builder.withClaim(entry.getKey(),String.valueOf(value));
                 }else if(value instanceof List){
                     try {
-                        List valueList = (List) value;
-                        builder.withArrayClaim(entry.getKey(), (String[]) valueList.toArray());
+                        List<String> valueList = (List) value;
+                        String[] valueArray = valueList.toArray(new String[valueList.size()]);
+                        if(valueList.size() > 0 && valueList.get(0) instanceof String){
+                            builder.withArrayClaim(entry.getKey(), valueArray);
+                        }
                     }catch (Exception e){
                     }
                 }
