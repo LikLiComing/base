@@ -86,7 +86,7 @@ public class DataServiceConfig {
     /**
      * 短信格式
      */
-    private String smsMessage = "您的验证码为：%s,有效时间2分钟[中诚信征信]";
+    private String smsMessage = "【中诚信征信】验证码：%s，验证码2分钟内有效，如非本人操作请忽略，谢谢。";
 
     /**
      * ocr身份证Url
