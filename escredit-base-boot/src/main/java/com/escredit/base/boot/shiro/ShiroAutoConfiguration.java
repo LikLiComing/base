@@ -157,6 +157,7 @@ public class ShiroAutoConfiguration {
         filterChainDefinitionMap.put("/csrf/**","anon");
         filterChainDefinitionMap.put("/v2/**","anon");
         filterChainDefinitionMap.put("/swagger-resources/**","anon");
+        filterChainDefinitionMap.put("/doc.html","anon");
 
         shiroProperties.getFilterChainDefinitionList().stream().forEach(item->{
             String[] split = item.split(",");

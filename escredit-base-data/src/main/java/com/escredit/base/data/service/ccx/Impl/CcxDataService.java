@@ -99,7 +99,7 @@ public class CcxDataService extends AbstractDataService{
 
         DTO dto = new DTO(true);
         //执行
-        excute(reqUrl,dto,"","2060");
+        excute(reqUrl,dto,"");
         dto.setObject(authCode);
         return dto;
     }

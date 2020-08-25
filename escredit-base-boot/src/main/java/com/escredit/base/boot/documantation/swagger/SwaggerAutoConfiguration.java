@@ -2,7 +2,6 @@ package com.escredit.base.boot.documantation.swagger;
 
 import com.escredit.base.boot.shiro.ShiroProperties;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

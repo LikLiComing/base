@@ -46,6 +46,7 @@
 
 		<servlet.version>4.0.1</servlet.version>
 		<springfox.swagger.version>2.9.2</springfox.swagger.version>
+		<swagger-bootstrap-ui.version>1.9.6</swagger-bootstrap-ui.version>
 
 		<shiro.version>1.4.1</shiro.version>
 		<jwt.version>3.4.0</jwt.version>
