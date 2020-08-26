@@ -108,14 +108,14 @@ public class JwtUtil {
             Object value = entry.getValue();
                 if(!(value instanceof Collection)){
                     builder.withClaim(entry.getKey(),String.valueOf(value));
-                }else if(value instanceof List){
+                }else{
                     try {
-                        List<String> valueList = (List) value;
+                        Collection<String> valueList = (Collection) value;
                         String[] valueArray = valueList.toArray(new String[valueList.size()]);
-                        if(valueList.size() > 0 && valueList.get(0) instanceof String){
-                            builder.withArrayClaim(entry.getKey(), valueArray);
-                        }
-                    }catch (Exception e){
+//                        if(valueList.size() > 0 && valueList.get(0) instanceof String){
+                        builder.withArrayClaim(entry.getKey(), valueArray);
+//                        }
+                    } catch (Exception e) {
                     }
                 }
         }
