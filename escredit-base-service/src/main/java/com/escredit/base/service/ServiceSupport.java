@@ -110,9 +110,7 @@ public abstract class ServiceSupport implements ServiceInterface{
             }
 
             dto.setList(afterQuery(getDao().query(parseParams(dto))));
-            if(dto.getList() != null && dto.getList().size() != 0){
-                dto.setSuccess(true);
-            }
+            dto.setSuccess(dto.getList() != null);
             return dto;
         } catch (Exception e) {
             throw new ServiceException("ServiceSupport query error", e);
