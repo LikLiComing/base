@@ -24,6 +24,7 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,6 +49,15 @@ public class ShiroAutoConfiguration {
 
     @Autowired(required = false)
     private ApiFilter apiFilter;
+
+    @Bean
+    public DefaultWebSessionManager defaultWebSessionManager() {
+        DefaultWebSessionManager defaultWebSessionManager = new DefaultWebSessionManager();
+        defaultWebSessionManager.setGlobalSessionTimeout(1000 * 60 * 60 * 24);
+        defaultWebSessionManager.setSessionValidationSchedulerEnabled(true);
+        defaultWebSessionManager.setSessionIdCookieEnabled(true);
+        return defaultWebSessionManager;
+    }
 
     @Bean
     public EhCacheManager ehCacheManager(){
@@ -236,6 +246,7 @@ public class ShiroAutoConfiguration {
         //ehCacheManager
         if(shiroProperties.getEhCacheManager().isEnable()){
             securityManager.setCacheManager(ehCacheManager());
+            securityManager.setSessionManager(defaultWebSessionManager());
         }
 
         return securityManager;
