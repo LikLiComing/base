@@ -19,6 +19,12 @@ public @interface Api {
     boolean permission() default false;
 
     /**
+     * 启动限流
+     * @return
+     */
+    boolean limit() default false;
+
+    /**
      * ApiService实现类
      * @return
      */

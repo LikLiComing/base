@@ -23,6 +23,15 @@ public abstract class ApiService {
    }
 
     /**
+     * 用于计算接口限流
+     * @param key
+     * @param limit
+     */
+   public DTO limit(String key, ApiProperties.Limit limit){
+       return new DTO(true);
+   }
+
+    /**
      * 删除及校验token
      * 用于接口幂等性
      * @param token

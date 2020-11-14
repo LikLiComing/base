@@ -1,5 +1,6 @@
 package com.escredit.base.boot.aop.api;
 
+import com.alibaba.fastjson.JSON;
 import com.escredit.base.entity.DTO;
 import com.escredit.base.util.RequestUtils;
 import com.escredit.base.util.reflect.ReflectUtils;
@@ -10,17 +11,24 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 
 @Configuration
 @Aspect
 @EnableConfigurationProperties(ApiProperties.class)
 public class ApiAspect {
+
+    private Logger logger = LoggerFactory.getLogger(ApiAspect.class);
 
     @Autowired
     private ApiProperties apiProperties;
@@ -29,7 +37,7 @@ public class ApiAspect {
     public void api() {}
 
     @Around(value = "api()")
-    public Object checkIdempotent(ProceedingJoinPoint joinPoint){
+    public Object checkApi(ProceedingJoinPoint joinPoint){
         Signature signature = joinPoint.getSignature();
         MethodSignature methodSignature = (MethodSignature)signature;
         Method targetMethod = methodSignature.getMethod();
@@ -65,8 +73,34 @@ public class ApiAspect {
                 return dto;
             }
             dto = checkPermission(api, apiService);
+            if(!dto.isSuccess()){
+                return dto;
+            }
+            dto = checkLimit(api, apiService);
+            if(!dto.isSuccess()){
+                return dto;
+            }
         } catch (Exception e) {
         }
+        return dto;
+    }
+
+    /**
+     * 限流
+     * @param api
+     * @param apiService
+     * @return
+     */
+    private DTO checkLimit(Api api, ApiService apiService) throws IOException {
+        DTO dto = new DTO(true);
+        if (!api.limit()) {
+            return dto;
+        }
+        HttpServletRequest request = RequestUtils.getRequest();
+        ApiProperties.Limit limit = apiProperties.getLimit();
+        String key = RequestUtils.getIp(request) + request.getRequestURI();
+        logger.info("限流日志："+key);
+        dto = apiService.limit(key, limit);
         return dto;
     }
 
@@ -120,6 +154,15 @@ public class ApiAspect {
     private void setErr(DTO dto){
         try {
             HttpServletRequest request = RequestUtils.getRequest();
+            HttpServletResponse response = RequestUtils.getResponse();
+            response.setCharacterEncoding("utf-8");
+            response.setContentType("application/json; charset=utf-8");
+            try (PrintWriter writer = response.getWriter()) {
+                writer.write(JSON.toJSON(dto).toString());
+                writer.flush();
+            } catch (IOException e1) {
+                logger.error(e1.getMessage());
+            }
             if(request!=null){
                 request.setAttribute("errmsg",dto.getErrmsg());
             }
