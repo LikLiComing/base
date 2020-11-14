@@ -22,7 +22,7 @@ import java.util.Map;
  * 对外开放api filter
  * 需要开启shiro.api.enable = true
  */
-public abstract class ApiFilter extends BaseFilter {
+public class ApiFilter extends BaseFilter {
 
     private Logger logger = LoggerFactory.getLogger(ApiFilter.class);
 
@@ -109,6 +109,8 @@ public abstract class ApiFilter extends BaseFilter {
      * @param dto
      * @return
      */
-    public abstract DTO afterHandle(HttpServletRequest request,DTO dto);
+    public DTO afterHandle(HttpServletRequest request,DTO dto){
+        return dto;
+    }
 
 }

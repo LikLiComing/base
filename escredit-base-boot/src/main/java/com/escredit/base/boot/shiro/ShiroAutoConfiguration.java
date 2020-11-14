@@ -51,6 +51,11 @@ public class ShiroAutoConfiguration {
     private ApiFilter apiFilter;
 
     @Bean
+    public ApiFilter apiFilter(){
+        return new ApiFilter();
+    }
+
+    @Bean
     public DefaultWebSessionManager defaultWebSessionManager() {
         DefaultWebSessionManager defaultWebSessionManager = new DefaultWebSessionManager();
         defaultWebSessionManager.setGlobalSessionTimeout(1000 * 60 * 60 * 24);
