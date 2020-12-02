@@ -11,6 +11,7 @@
 		<module>escredit-base-rules</module>
 		<module>escredit-base-email</module>
 		<module>escredit-base-data</module>
+		<module>escredit-base-esign</module>
 	</modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
