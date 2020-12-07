@@ -54,8 +54,9 @@ public class ImageToPdfUtils {
             document.open();
             //获取图片的宽高
             Image image = Image.getInstance(source);
-            float imageHeight=image.getScaledHeight();
-            float imageWidth=image.getScaledWidth();
+            image.scalePercent((document.getPageSize().getWidth() / image.getWidth()) * 100);
+            float imageHeight = image.getScaledHeight();
+            float imageWidth = image.getScaledWidth();
             //设置页面宽高与图片一致
             Rectangle rectangle = new Rectangle(imageWidth, imageHeight);
             document.setPageSize(rectangle);
