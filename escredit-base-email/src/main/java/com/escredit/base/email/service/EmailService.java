@@ -9,6 +9,7 @@ import freemarker.template.TemplateException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,14 @@ public class EmailService {
 
 	@Value("${spring.mail.username}")
 	private String emailFrom;
+
+	public EmailProperties getEmailProperties() {
+		return emailProperties;
+	}
+
+	public void setEmailProperties(EmailProperties emailProperties) {
+		this.emailProperties = emailProperties;
+	}
 
 	/**
 	 * 发送邮件
@@ -80,27 +89,72 @@ public class EmailService {
 	 * @param attachFile
 	 * @return
 	 */
-	public DTO sendEmail(File attachFile) {
-		DTO resultDTO = new DTO();
-		boolean issuccess = true;
-		MimeMessage message = mailSender.createMimeMessage();
-		EmailProperties.Common common = emailProperties.getCommon();
+//	public DTO sendEmail(File attachFile) {
+//		DTO resultDTO = new DTO();
+//		boolean issuccess = true;
+//		MimeMessage message = mailSender.createMimeMessage();
+//		EmailProperties.Common common = emailProperties.getCommon();
+//
+//		try {
+//			// set mediaType
+//			MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+//					StandardCharsets.UTF_8.name());
+//			// add attachment
+//			if(attachFile != null && attachFile.exists()){
+//				helper.addAttachment(attachFile.getName(),attachFile);
+//			}
+//
+//			setText(helper,emailProperties);
+//			helper.setTo(common.getTo());
+//			helper.setSubject(common.getSubject());
+//			helper.setFrom(emailFrom);
+//			mailSender.send(message);
+//
+//		} catch (MessagingException | IOException | TemplateException e) {
+//			issuccess = false;
+//			resultDTO.putErr("-1",e.getMessage());
+//		}
+//		return resultDTO.setSuccess(issuccess);
+//	}
 
+	public DTO sendEmail(File attachFile) {
+		MimeMessage message = mailSender.createMimeMessage();
+		MimeMessageHelper helper;
 		try {
-			// set mediaType
-			MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+			helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
 					StandardCharsets.UTF_8.name());
-			// add attachment
 			if(attachFile != null && attachFile.exists()){
 				helper.addAttachment(attachFile.getName(),attachFile);
 			}
+		} catch (MessagingException e) {
+			return new DTO(false).putErr("-1",e.getMessage());
+		}
+		return sendEmail(helper,message);
+	}
 
+	public DTO sendEmail(String attachmentFilename, InputStreamSource inputStreamSource) {
+		MimeMessage message = mailSender.createMimeMessage();
+		MimeMessageHelper helper;
+		try {
+			helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+					StandardCharsets.UTF_8.name());
+			helper.addAttachment(attachmentFilename,inputStreamSource);
+		} catch (MessagingException e) {
+			return new DTO(false).putErr("-1",e.getMessage());
+		}
+		return sendEmail(helper,message);
+	}
+
+	private DTO sendEmail(MimeMessageHelper helper,MimeMessage message) {
+		DTO resultDTO = new DTO();
+		boolean issuccess = true;
+		EmailProperties.Common common = emailProperties.getCommon();
+		try {
 			setText(helper,emailProperties);
 			helper.setTo(common.getTo());
 			helper.setSubject(common.getSubject());
 			helper.setFrom(emailFrom);
 			mailSender.send(message);
-
 		} catch (MessagingException | IOException | TemplateException e) {
 			issuccess = false;
 			resultDTO.putErr("-1",e.getMessage());
