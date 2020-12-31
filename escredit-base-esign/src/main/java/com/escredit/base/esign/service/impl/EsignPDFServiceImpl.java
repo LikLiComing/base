@@ -466,4 +466,33 @@ public class EsignPDFServiceImpl implements EsignPDFService {
 
     }
 
+
+    @Override
+    public byte[] signPdfByBytesV2(String accountId, String sealId, SignType signType, String page, float posX, float posY, byte[] pdfBytes) {
+
+
+        try {
+
+            // 签署后PDF文件本地保存路径,如果希望签署后依然返回PDF文件字节流时请设置该属性为空
+            SignPDFStreamBean signPDFStreamBean = doSetSignPDFStreamBean(pdfBytes, null, "", null);
+
+            // 印章图片在PDF文件中的等比缩放大小,公章标准大小为4.2厘米即159px
+            float widthScaling = 159F;
+
+            // 设置企业客户签章位置信息
+            PosBean posBean = setPosBean(signType, null, page, posX, posY, widthScaling);
+
+            // 企业客户签署盖章
+            FileDigestSignResult fileDigestSignResult = signHelper.localSignPDFV2(signPDFStreamBean, posBean, sealId, signType);
+
+            // 所有人签署完成后将PDF文件字节流保存为本地PDF文件
+            return fileDigestSignResult.getStream();
+
+        } catch (Exception e) {
+            logger.error("pdf签章失败, accountid: {}, stacktrace: {}", accountId, e.toString());
+            return null;
+        }
+
+    }
+
 }

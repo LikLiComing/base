@@ -149,6 +149,22 @@ public class SignHelper {
 		castSignRst(signRst, "自身", true);
 		return signRst;
 	}
+
+
+
+	/**
+	 *
+	 * description 平台自身PDF摘要签署（文件流&印章标识）
+	 *
+	 * xuwucheng 2020.12.31
+	 */
+	public FileDigestSignResult localSignPDFV2(SignPDFStreamBean stream, PosBean signPos, String sealId, SignType signType)
+			throws DefineException{
+
+		FileDigestSignResult signRst = selfSignService.localSignPdfV2(stream, signPos, sealId, signType);
+		castSignRst(signRst, "自身", true);
+		return signRst;
+	}
 	
 	
 	/**
