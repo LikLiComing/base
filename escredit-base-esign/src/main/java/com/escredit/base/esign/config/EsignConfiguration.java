@@ -10,7 +10,7 @@ public class EsignConfiguration {
 
 
     @Bean
-    public EsignPDFService emailService(){
+    public EsignPDFService esignService(){
         return new EsignPDFServiceImpl();
     }
 
