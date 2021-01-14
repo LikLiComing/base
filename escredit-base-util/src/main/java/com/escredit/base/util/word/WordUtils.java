@@ -1,5 +1,6 @@
 package com.escredit.base.util.word;
 
+import com.escredit.base.util.lang.StringUtils;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.*;
@@ -16,29 +17,65 @@ import java.util.regex.Pattern;
  */
 public class WordUtils {
 
+    private static String REGEX = "\\$\\{(.*?)}";
+
     /**
      * 用一个docx文档作为模板，然后替换其中的内容，再写入目标文档中。
-     * @throws Exception
+     * @param params 填充参数
+     * @param inPath 模板路径
+     * @param regex 正则匹配,默认匹配 ${字段名}
+     * @return byte[]
+     * @throws IOException
      */
-    public static void templateWrite(Map<String, Object> params) throws IOException {
-        // 模板路径
-        String filePath = "C:/Users/ink/Desktop/test.docx";
-        InputStream is = new FileInputStream(filePath);
+    public static byte[] templateWriteToByte(Map<String, Object> params, String inPath, String regex) throws IOException {
+        InputStream is = new FileInputStream(inPath);
         XWPFDocument doc = new XWPFDocument(is);
+        if (StringUtils.isNotEmpty(regex)) {
+            REGEX = regex;
+        }
         //替换段落里面的变量
         replaceInPara(doc, params);
         //替换表格里面的变量
         replaceInTable(doc, params);
-        OutputStream os = new FileOutputStream("C:/Users/ink/Desktop/test1.docx");
+        //替换页眉里面的变量
+        replaceHeader(doc, params);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        doc.write(bos);
+        bos.flush();
+        byte[] byteArray = bos.toByteArray();
+
+        close(bos);
+        close(is);
+        doc.close();
+        return byteArray;
+    }
+
+    /**
+     * 用一个docx文档作为模板，然后替换其中的内容，再写入目标文档中。
+     * @param params 填充参数
+     * @param inPath 模板路径
+     * @param outPath 输出路径
+     * @param regex 正则匹配,默认匹配 ${字段名}
+     * @throws IOException
+     */
+    public static void templateWrite(Map<String, Object> params, String inPath, String outPath, String regex) throws IOException {
+        InputStream is = new FileInputStream(inPath);
+        XWPFDocument doc = new XWPFDocument(is);
+        if (StringUtils.isNotEmpty(regex)) {
+            REGEX = regex;
+        }
+        //替换段落里面的变量
+        replaceInPara(doc, params);
+        //替换表格里面的变量
+        replaceInTable(doc, params);
+        //替换页眉里面的变量
+        replaceHeader(doc, params);
+
+        OutputStream os = new FileOutputStream(outPath);
         doc.write(os);
-
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        doc.write(bos);
-//        bos.flush();
-//        bos.toByteArray();
-//        close(bos);
-
         close(os);
+
         close(is);
         doc.close();
     }
@@ -70,15 +107,14 @@ public class WordUtils {
         if (matcher(para.getParagraphText()).find()) {
             runs = para.getRuns();
             System.out.println("2:"+runs);
-            for (int i=0; i<runs.size(); i++) {
-                XWPFRun run = runs.get(i);
+            for (XWPFRun run : runs) {
                 String runText = run.toString();
                 matcher = matcher(runText);
                 if (matcher.find()) {
                     while ((matcher = matcher(runText)).find()) {
                         runText = matcher.replaceFirst(String.valueOf(params.get(matcher.group(1))));
                     }
-                    run.setText(runText,0);
+                    run.setText(runText, 0);
                 }
             }
         }
@@ -111,13 +147,32 @@ public class WordUtils {
     }
 
     /**
+     * 替换页眉
+     * @param doc
+     * @param params
+     */
+    private static void replaceHeader(XWPFDocument doc, Map<String, Object> params){
+        List<XWPFHeader> xwpfHeaderList = doc.getHeaderList();
+        Iterator iterator = xwpfHeaderList.iterator();
+        XWPFParagraph para;
+        XWPFHeader xwpfHeader;
+        while (iterator.hasNext()) {
+            xwpfHeader = (XWPFHeader) iterator.next();
+            List<XWPFParagraph> xwpfParagraphList = xwpfHeader.getParagraphs();
+            for (XWPFParagraph xwpfParagraph : xwpfParagraphList) {
+                para = xwpfParagraph;
+                replaceInPara(para, params);
+            }
+        }
+    }
+
+    /**
      * 正则匹配字符串
      * @param str
      * @return
      */
     private static Matcher matcher(String str) {
-        String regex = "\\$\\{(.*?)}";
-        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
         return pattern.matcher(str);
     }
 
@@ -160,6 +215,9 @@ public class WordUtils {
         params.put("pay", "1554");
         params.put("date", "1554年7月12日");
         params.put("year", "1554");
-        templateWrite(params);
+        // 模板路径
+        String filePath = "C:/Users/ink/Desktop/test.docx";
+        String outPath = "C:/Users/ink/Desktop/test1.docx";
+        templateWrite(params, filePath, outPath, "");
     }
 }
