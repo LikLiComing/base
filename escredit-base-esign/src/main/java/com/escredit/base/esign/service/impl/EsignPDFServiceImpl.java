@@ -439,7 +439,7 @@ public class EsignPDFServiceImpl implements EsignPDFService {
 
 
     @Override
-    public byte[] signPdfByBytes(String accountId, String sealData, SignType signType, String page, float posX, float posY, byte[] pdfBytes) {
+    public byte[] signPdfByBytes(String accountId, String sealData, SignType signType, String keyword, String page, float posX, float posY, byte[] pdfBytes) {
 
 
         try {
@@ -451,7 +451,7 @@ public class EsignPDFServiceImpl implements EsignPDFService {
             float widthScaling = 159F;
 
             // 设置企业客户签章位置信息
-            PosBean posBean = setPosBean(signType, null, page, posX, posY, widthScaling);
+            PosBean posBean = setPosBean(signType, keyword, page, posX, posY, widthScaling);
 
             // 企业客户签署盖章
             FileDigestSignResult fileDigestSignResult = signHelper.localSignPDF(accountId, sealData, signPDFStreamBean, posBean, signType);
@@ -468,7 +468,7 @@ public class EsignPDFServiceImpl implements EsignPDFService {
 
 
     @Override
-    public byte[] signPdfByBytesV2(String accountId, String sealId, SignType signType, String page, float posX, float posY, byte[] pdfBytes) {
+    public byte[] signPdfByBytesV2(String accountId, String sealId, SignType signType, String keyword, String page, float posX, float posY, byte[] pdfBytes) {
 
 
         try {
@@ -480,7 +480,7 @@ public class EsignPDFServiceImpl implements EsignPDFService {
             float widthScaling = 159F;
 
             // 设置企业客户签章位置信息
-            PosBean posBean = setPosBean(signType, null, page, posX, posY, widthScaling);
+            PosBean posBean = setPosBean(signType, keyword, page, posX, posY, widthScaling);
 
             // 企业客户签署盖章
             FileDigestSignResult fileDigestSignResult = signHelper.localSignPDFV2(signPDFStreamBean, posBean, sealId, signType);

@@ -96,10 +96,10 @@ public interface EsignPDFService {
 
 
 
-    public byte[] signPdfByBytes(String accountId, String sealData, SignType signType, String page, float posX, float posY,
+    public byte[] signPdfByBytes(String accountId, String sealData, SignType signType, String keyword, String page, float posX, float posY,
                                  byte[] pdfBytes);
 
-    public byte[] signPdfByBytesV2(String accountId, String sealId, SignType signType, String page, float posX, float posY,
+    public byte[] signPdfByBytesV2(String accountId, String sealId, SignType signType, String keyword, String page, float posX, float posY,
                                  byte[] pdfBytes);
 
 }
