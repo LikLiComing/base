@@ -13,6 +13,11 @@ import org.springframework.mail.MailSender;
 @ConditionalOnClass(MailSender.class)
 public class EmailAutoConfiguration {
 
+    static {
+        //解决文件名超长乱码问题 xuwucheng 2020.01.15
+        System.setProperty("mail.mime.splitlongparameters","false");
+    }
+
     private EmailProperties emailProperties;
 
     public EmailAutoConfiguration(EmailProperties emailProperties) {

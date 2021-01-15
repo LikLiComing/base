@@ -17,6 +17,7 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +53,7 @@ public class EmailService {
 	 * @param attachFile
 	 * @return
 	 */
-	public DTO sendEmail(EmailProperties.Ftl ftl, File attachFile) {
+	public DTO sendEmail(EmailProperties.Ftl ftl, File[] attachFile) {
 		ftl.setEnable(true);
 		this.emailProperties.setFtl(ftl);
 		return sendEmail(attachFile);
@@ -65,7 +66,7 @@ public class EmailService {
 	 * @param attachFile
 	 * @return
 	 */
-	public DTO sendEmail(EmailProperties.Common common,EmailProperties.Ftl ftl, File attachFile) {
+	public DTO sendEmail(EmailProperties.Common common,EmailProperties.Ftl ftl, File[] attachFile) {
 		this.emailProperties.setCommon(common);
 		ftl.setEnable(true);
 		this.emailProperties.setFtl(ftl);
@@ -78,7 +79,7 @@ public class EmailService {
 	 * @param attachFile
 	 * @return
 	 */
-	public DTO sendEmail(EmailProperties.Common common, File attachFile) {
+	public DTO sendEmail(EmailProperties.Common common, File[] attachFile) {
 		this.emailProperties.setCommon(common);
 		return sendEmail(attachFile);
 	}
@@ -86,7 +87,7 @@ public class EmailService {
 	/**
 	 * 发送邮件
 	 * 采用yml配置
-	 * @param attachFile
+	 * @param
 	 * @return
 	 */
 //	public DTO sendEmail(File attachFile) {
@@ -117,16 +118,19 @@ public class EmailService {
 //		return resultDTO.setSuccess(issuccess);
 //	}
 
-	public DTO sendEmail(File attachFile) {
+	public DTO sendEmail(File[] attachFiles) {
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper;
 		try {
 			helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
 					StandardCharsets.UTF_8.name());
-			if(attachFile != null && attachFile.exists()){
-				helper.addAttachment(attachFile.getName(),attachFile);
+			if(attachFiles != null && attachFiles.length > 0){
+				for (File attachFile : attachFiles) {
+					//解决文件名乱码 xuwucheng 2020.01.15
+					helper.addAttachment(MimeUtility.encodeWord(attachFile.getName()),attachFile);
+				}
 			}
-		} catch (MessagingException e) {
+		} catch (Exception e) {
 			return new DTO(false).putErr("-1",e.getMessage());
 		}
 		return sendEmail(helper,message);
@@ -138,8 +142,8 @@ public class EmailService {
 		try {
 			helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
 					StandardCharsets.UTF_8.name());
-			helper.addAttachment(attachmentFilename,inputStreamSource);
-		} catch (MessagingException e) {
+			helper.addAttachment(MimeUtility.encodeWord(attachmentFilename),inputStreamSource);
+		} catch (Exception e) {
 			return new DTO(false).putErr("-1",e.getMessage());
 		}
 		return sendEmail(helper,message);
