@@ -156,6 +156,12 @@ public class EmailService {
 		try {
 			setText(helper,emailProperties);
 			helper.setTo(common.getTo());
+			if (null != common.getCc()) {
+				helper.setCc(common.getCc());
+			}
+			if (null != common.getBcc()) {
+				helper.setBcc(common.getBcc());
+			}
 			helper.setSubject(common.getSubject());
 			helper.setFrom(emailFrom);
 			mailSender.send(message);
