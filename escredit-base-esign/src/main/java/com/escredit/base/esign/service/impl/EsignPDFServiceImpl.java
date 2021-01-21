@@ -36,22 +36,22 @@ public class EsignPDFServiceImpl implements EsignPDFService {
 
     private static Logger logger = LoggerFactory.getLogger(EsignPDFServiceImpl.class);
     
-    @Autowired
+    @Autowired(required = false)
     private AccountHelper accountHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private SealHelper sealHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private SignHelper signHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private VerifyPDFHelper verifyPDFHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private MobileCodeHelper mobileCodeHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private PdfTemplateHelper pdfTemplateHelper;
 
 
