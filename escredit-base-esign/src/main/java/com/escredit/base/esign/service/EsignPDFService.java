@@ -102,4 +102,10 @@ public interface EsignPDFService {
     public byte[] signPdfByBytesV2(String accountId, String sealId, SignType signType, String keyword, String page, float posX, float posY,
                                  byte[] pdfBytes);
 
+    public String signPdfByFile(String accountId, String sealData, SignType signType, String keyword, String page, float posX, float posY,
+                                String srcPdfPath, String targetPdfPath);
+
+    public String signPdfByFileV2(String accountId, String sealId, SignType signType, String keyword, String page, float posX, float posY,
+                                String srcPdfPath, String targetPdfPath);
+
 }
