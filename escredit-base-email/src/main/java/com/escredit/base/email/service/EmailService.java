@@ -190,7 +190,7 @@ public class EmailService {
 		//是否启动模版
 		if(ftl.isEnable() && StringUtils.isNotEmpty(ftlBasePackagePath) && StringUtils.isNotEmpty(ftlName) ){
 			//多个模块路径
-			config.setClassForTemplateLoading(this.getClass(),ftlBasePackagePath);
+//			config.setClassForTemplateLoading(this.getClass(),ftlBasePackagePath);
 			Template t = config.getTemplate(ftlFolder+"/"+ftlName);
 
 			Map dataModel = new HashMap();
