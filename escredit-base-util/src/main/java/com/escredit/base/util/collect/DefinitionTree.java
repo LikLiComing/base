@@ -23,12 +23,7 @@ public class DefinitionTree{
         this.treeProperties = treeProperties;
     }
 
-    /**
-     * 生成树
-     * @param sourceList
-     * @return
-     */
-    public String generateJSONTree(Collection sourceList){
+    public List generateJSONTree(Collection sourceList){
         String parentName = treeProperties.getParentidName();
         List rootList = new ArrayList();
         List childList = new ArrayList();
@@ -43,7 +38,16 @@ public class DefinitionTree{
         rootList.stream().forEach(item ->{
             packageTreeList(treeList,item,childList);
         });
-        return JSONArray.toJSONString(treeList);
+        return treeList;
+    }
+
+    /**
+     * 生成树
+     * @param sourceList
+     * @return
+     */
+    public String generateJSONTreeString(Collection sourceList){
+        return JSONArray.toJSONString(generateJSONTree(sourceList));
     }
 
     private void packageTreeList(List treeList, Object item, List childList){
