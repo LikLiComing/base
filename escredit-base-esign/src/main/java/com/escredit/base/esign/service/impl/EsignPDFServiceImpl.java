@@ -36,22 +36,22 @@ public class EsignPDFServiceImpl implements EsignPDFService {
 
     private static Logger logger = LoggerFactory.getLogger(EsignPDFServiceImpl.class);
     
-    @Autowired
+    @Autowired(required = false)
     private AccountHelper accountHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private SealHelper sealHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private SignHelper signHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private VerifyPDFHelper verifyPDFHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private MobileCodeHelper mobileCodeHelper;
 
-    @Autowired
+    @Autowired(required = false)
     private PdfTemplateHelper pdfTemplateHelper;
 
 
@@ -493,6 +493,65 @@ public class EsignPDFServiceImpl implements EsignPDFService {
             return null;
         }
 
+    }
+
+    @Override
+    public String signPdfByFile(String accountId, String sealData, SignType signType, String keyword, String page, float posX, float posY, String srcPdfPath, String targetPdfPath) {
+
+        try {
+
+            byte[] srcPdfBytes = FileHelper.getFileBytes(srcPdfPath);
+
+            SignPDFStreamBean signPDFStreamBean = doSetSignPDFStreamBean(srcPdfBytes, null, "", null);
+
+            // 印章图片在PDF文件中的等比缩放大小,公章标准大小为4.2厘米即159px
+            float widthScaling = 159F;
+
+            // 设置企业客户签章位置信息
+            PosBean posBean = setPosBean(signType, keyword, page, posX, posY, widthScaling);
+
+            // 企业客户签署盖章
+            FileDigestSignResult fileDigestSignResult = signHelper.localSignPDF(accountId, sealData, signPDFStreamBean, posBean, signType);
+            byte[] signedPdfBytes = fileDigestSignResult.getStream();
+
+            FileHelper.saveFileByStream(signedPdfBytes, targetPdfPath);
+
+            return targetPdfPath;
+
+        } catch (Exception e) {
+            logger.error(CREATE_PDF_TEMPLATE_SEAL_ERROR, e);
+            return null;
+        }
+
+    }
+
+    @Override
+    public String signPdfByFileV2(String accountId, String sealId, SignType signType, String keyword, String page, float posX, float posY, String srcPdfPath, String targetPdfPath) {
+
+        try {
+
+            byte[] srcPdfBytes = FileHelper.getFileBytes(srcPdfPath);
+            // 签署后PDF文件本地保存路径,如果希望签署后依然返回PDF文件字节流时请设置该属性为空
+            SignPDFStreamBean signPDFStreamBean = doSetSignPDFStreamBean(srcPdfBytes, null, "", null);
+
+            // 印章图片在PDF文件中的等比缩放大小,公章标准大小为4.2厘米即159px
+            float widthScaling = 159F;
+
+            // 设置企业客户签章位置信息
+            PosBean posBean = setPosBean(signType, keyword, page, posX, posY, widthScaling);
+
+            // 企业客户签署盖章
+            FileDigestSignResult fileDigestSignResult = signHelper.localSignPDFV2(signPDFStreamBean, posBean, sealId, signType);
+            byte[] signedPdfBytes = fileDigestSignResult.getStream();
+
+            FileHelper.saveFileByStream(signedPdfBytes, targetPdfPath);
+
+            return targetPdfPath;
+
+        } catch (Exception e) {
+            logger.error(CREATE_PDF_TEMPLATE_SEAL_ERROR, e);
+            return null;
+        }
     }
 
 }

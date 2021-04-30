@@ -156,6 +156,12 @@ public class EmailService {
 		try {
 			setText(helper,emailProperties);
 			helper.setTo(common.getTo());
+			if (null != common.getCc() && common.getCc().length > 0) {
+				helper.setCc(common.getCc());
+			}
+			if (null != common.getBcc() && common.getBcc().length > 0) {
+				helper.setBcc(common.getBcc());
+			}
 			helper.setSubject(common.getSubject());
 			helper.setFrom(emailFrom);
 			mailSender.send(message);
@@ -184,7 +190,7 @@ public class EmailService {
 		//是否启动模版
 		if(ftl.isEnable() && StringUtils.isNotEmpty(ftlBasePackagePath) && StringUtils.isNotEmpty(ftlName) ){
 			//多个模块路径
-			config.setClassForTemplateLoading(this.getClass(),ftlBasePackagePath);
+//			config.setClassForTemplateLoading(this.getClass(),ftlBasePackagePath);
 			Template t = config.getTemplate(ftlFolder+"/"+ftlName);
 
 			Map dataModel = new HashMap();

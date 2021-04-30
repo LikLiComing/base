@@ -22,7 +22,15 @@ public class EmailProperties {
         /**
          * 收件人
          */
-        private String to;
+        private String[] to;
+        /**
+         * 抄送人
+         */
+        private String[] cc;
+        /**
+         * 密送人
+         */
+        private String[] bcc;
 
         /**
          * 收件人称呼
@@ -39,12 +47,28 @@ public class EmailProperties {
          */
         private String content;
 
-        public String getTo() {
+        public String[] getTo() {
             return to;
         }
 
-        public void setTo(String to) {
+        public void setTo(String[] to) {
             this.to = to;
+        }
+
+        public String[] getCc() {
+            return cc;
+        }
+
+        public void setCc(String[] cc) {
+            this.cc = cc;
+        }
+
+        public String[] getBcc() {
+            return bcc;
+        }
+
+        public void setBcc(String[] bcc) {
+            this.bcc = bcc;
         }
 
         public String getHello() {

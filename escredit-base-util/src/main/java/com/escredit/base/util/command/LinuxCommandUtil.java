@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class LinuxCommandUtil {
 
-    public List<String> executeLinuxCmd(List<String> commands) {
+    public static List<String> executeLinuxCmd(List<String> commands) {
 
         List<String> rspList = new ArrayList<>();
         Runtime run = Runtime.getRuntime();
@@ -64,6 +64,30 @@ public class LinuxCommandUtil {
             e.printStackTrace();
         }
         return rspList;
+    }
+
+    public static String executeLinuxCmd(String command) {
+
+        Runtime run = Runtime.getRuntime();
+        try {
+            Process process = run.exec(command);
+            InputStream in = process.getInputStream();
+            BufferedReader bs = new BufferedReader(new InputStreamReader(in));
+            StringBuffer out = new StringBuffer();
+            byte[] b = new byte[1024];
+            for (int n; (n = in.read(b)) != -1;) {
+                out.append(new String(b, 0, n));
+            }
+            in.close();
+            process.destroy();
+
+            return out.toString();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 }
