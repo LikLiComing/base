@@ -3,6 +3,9 @@ package com.escredit.base.dao;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * dao层支持
+ */
 public abstract class DaoSupport implements DaoInterface {
 
     public abstract DaoInterface getDao();
@@ -40,5 +43,10 @@ public abstract class DaoSupport implements DaoInterface {
     @Override
     public long queryCount(Map<String, Object> map) {
         return getDao().queryCount(map);
+    }
+
+    @Override
+    public <T> int updatePartial(T t) {
+        return getDao().updatePartial(t);
     }
 }
