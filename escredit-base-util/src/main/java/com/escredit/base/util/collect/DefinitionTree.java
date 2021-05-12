@@ -88,6 +88,16 @@ public class DefinitionTree{
 
         private List<VueTree> children;
 
+        private Object object;
+
+        public Object getObject() {
+            return object;
+        }
+
+        public void setObject(Object object) {
+            this.object = object;
+        }
+
         public Long getParentid() {
             return parentid;
         }
